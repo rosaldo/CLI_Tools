@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# this command sends a prompt to chatGPT and returns with its response.
+# need an openai api key with credits to answer.
+# copy this file to /usr/bin
+
+import os
+import sys
+from datetime import datetime as dt
+
+import openai
+from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader
+
+openai_api_key = ""
+
+gpt3 = "gpt-3.5-turbo"
+gpt4 = "gpt-4-32k"
+
+now = str(dt.now())
+path = os.path.dirname(os.path.abspath(__file__))
+separator = f"========== {now} =========="
+
+out = separator
+out += "\nCalculando a resposta. Aguarde ...\n"
+
+if sys.argv[1] == "-l":
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+    documents = SimpleDirectoryReader(f"{path}/gpt_library/").load_data()
+    index = GPTSimpleVectorIndex.from_documents(documents)
+    response = index.query(sys.argv[2])
+    
+if sys.argv[1] == "-g":
+    openai.api_key = openai_api_key
+    response = openai.ChatCompletion.create(model=gpt3, messages=[{"role": "user", "content": sys.argv[2]}])
+    response = response.choices[0].message.content
+
+out += str(response)
+out += "\n"
+out += separator
+log = open(f"{path}/gpt.log", "w")
+sys.stdout = log
+print(out)
+log.close()
+sys.stdout = sys.__stdout__
