@@ -1,0 +1,6 @@
+#!/bin/bash
+# dependencies: zbar + qrencode + xclip
+# this command captures, decodes and copies to memory a qrcode inside an image.
+# copy this file to /usr/bin
+qrcode=$(zbarimg -q --nodbus "$1")
+echo "$qrcode" | xclip -selection clipboard
